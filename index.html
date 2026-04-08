@@ -46,6 +46,9 @@
         } from 'lucide-react';
         import { GoogleGenAI } from '@google/genai';
         import * as pdfjsLib from 'pdfjs-dist';
+        import htm from 'https://esm.sh/htm';
+
+        const html = htm.bind(React.createElement);
 
         // --- PDF Utilities ---
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
@@ -153,103 +156,103 @@
                 }
             };
 
-            return (
+            return html`
                 <div className="max-w-xl mx-auto">
-                    <form onSubmit={handleSubmit} className="space-y-8">
+                    <form onSubmit=${handleSubmit} className="space-y-8">
                         <div className="space-y-4">
                             <label className="block text-sm font-bold text-gray-700 uppercase tracking-widest">Subject to Master</label>
                             <div className="relative">
-                                <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                <input type="text" value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Quantum Physics" className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-100 rounded-2xl focus:border-indigo-500 focus:ring-0 transition-all text-lg" />
+                                <${BookOpen} className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <input type="text" value=${subject} onChange=${e => setSubject(e.target.value)} placeholder="e.g. Quantum Physics" className="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-100 rounded-2xl focus:border-indigo-500 focus:ring-0 transition-all text-lg" />
                             </div>
                         </div>
                         <div className="space-y-4">
                             <label className="block text-sm font-bold text-gray-700 uppercase tracking-widest">Study Materials</label>
                             <div className="relative group">
-                                <input type="file" multiple accept=".pdf,.txt" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                <input type="file" multiple accept=".pdf,.txt" onChange=${handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                                 <div className="border-2 border-dashed border-gray-200 rounded-3xl p-12 text-center group-hover:border-indigo-400 transition-colors bg-gray-50/50">
-                                    <Upload className="w-8 h-8 text-indigo-600 mx-auto mb-4" />
+                                    <${Upload} className="w-8 h-8 text-indigo-600 mx-auto mb-4" />
                                     <p className="text-gray-600 font-medium">Click to upload or drag and drop</p>
                                 </div>
                             </div>
                         </div>
-                        {files.length > 0 && (
+                        ${files.length > 0 && html`
                             <div className="grid gap-3">
-                                {files.map((f, i) => (
-                                    <div key={i} className="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                                ${files.map((f, i) => html`
+                                    <div key=${i} className="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
                                         <div className="flex items-center space-x-3">
-                                            <FileText className="w-5 h-5 text-indigo-500" />
-                                            <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]">{f.name}</span>
+                                            <${FileText} className="w-5 h-5 text-indigo-500" />
+                                            <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]">${f.name}</span>
                                         </div>
-                                        <button type="button" onClick={() => setFiles(files.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-500"><X className="w-4 h-4" /></button>
+                                        <button type="button" onClick=${() => setFiles(files.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-500"><${X} className="w-4 h-4" /></button>
                                     </div>
-                                ))}
+                                `)}
                             </div>
-                        )}
-                        {error && <p className="text-sm text-red-500 bg-red-50 p-4 rounded-xl">{error}</p>}
-                        <button type="submit" disabled={isProcessing} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:bg-indigo-700 disabled:opacity-50 transition-all flex items-center justify-center space-x-3">
-                            {isProcessing ? <><Loader2 className="w-6 h-6 animate-spin" /><span>Analyzing...</span></> : <span>Generate Study Guide</span>}
+                        `}
+                        ${error && html`<p className="text-sm text-red-500 bg-red-50 p-4 rounded-xl">${error}</p>`}
+                        <button type="submit" disabled=${isProcessing} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:bg-indigo-700 disabled:opacity-50 transition-all flex items-center justify-center space-x-3">
+                            ${isProcessing ? html`<><${Loader2} className="w-6 h-6 animate-spin" /><span>Analyzing...</span></>` : html`<span>Generate Study Guide</span>`}
                         </button>
                     </form>
                 </div>
-            );
+            `;
         }
 
         function StudyGuide({ content }) {
-            return (
+            return html`
                 <div className="max-w-4xl mx-auto py-8 space-y-12">
                     <section className="space-y-6">
                         <div className="flex items-center space-x-3 text-indigo-600">
-                            <BookOpen className="w-6 h-6" />
+                            <${BookOpen} className="w-6 h-6" />
                             <h2 className="text-sm font-bold uppercase tracking-[0.2em]">Summary</h2>
                         </div>
                         <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                            <p className="text-xl text-gray-700 leading-relaxed italic">"{content.summary}"</p>
+                            <p className="text-xl text-gray-700 leading-relaxed italic">"${content.summary}"</p>
                         </div>
                     </section>
                     <section className="space-y-8">
                         <div className="flex items-center space-x-3 text-indigo-600">
-                            <Lightbulb className="w-6 h-6" />
+                            <${Lightbulb} className="w-6 h-6" />
                             <h2 className="text-sm font-bold uppercase tracking-[0.2em]">Deep Teaching</h2>
                         </div>
                         <div className="grid gap-8">
-                            {content.keyTopics.map((topic, index) => (
-                                <motion.div key={index} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex items-start space-x-6">
-                                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg">{String(index + 1).padStart(2, '0')}</div>
+                            ${content.keyTopics.map((topic, index) => html`
+                                <${motion.div} key=${index} initial=${{ opacity: 0, y: 20 }} whileInView=${{ opacity: 1, y: 0 }} viewport=${{ once: true }} className="flex items-start space-x-6">
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg">${String(index + 1).padStart(2, '0')}</div>
                                     <div className="space-y-3 pt-2">
-                                        <h3 className="text-2xl font-bold text-gray-900">{topic.title}</h3>
-                                        <div className="text-gray-600 leading-relaxed">{topic.content}</div>
+                                        <h3 className="text-2xl font-bold text-gray-900">${topic.title}</h3>
+                                        <div className="text-gray-600 leading-relaxed">${topic.content}</div>
                                     </div>
-                                </motion.div>
-                            ))}
+                                </${motion.div}>
+                            `)}
                         </div>
                     </section>
                 </div>
-            );
+            `;
         }
 
         function Flashcards({ cards }) {
             const [idx, setIdx] = useState(0);
             const [flipped, setFlipped] = useState(false);
-            return (
+            return html`
                 <div className="flex flex-col items-center space-y-8 py-8">
                     <div className="relative w-full max-w-md h-64 perspective-1000">
-                        <motion.div key={idx} className="w-full h-full cursor-pointer preserve-3d transition-transform duration-500" animate={{ rotateY: flipped ? 180 : 0 }} onClick={() => setFlipped(!flipped)} style={{ transformStyle: 'preserve-3d' }}>
+                        <${motion.div} key=${idx} className="w-full h-full cursor-pointer preserve-3d transition-transform duration-500" animate=${{ rotateY: flipped ? 180 : 0 }} onClick=${() => setFlipped(!flipped)} style=${{ transformStyle: 'preserve-3d' }}>
                             <div className="absolute inset-0 w-full h-full backface-hidden bg-white border-2 border-gray-200 rounded-2xl shadow-sm flex items-center justify-center p-8 text-center">
-                                <p className="text-xl font-medium text-gray-800">{cards[idx].question}</p>
+                                <p className="text-xl font-medium text-gray-800">${cards[idx].question}</p>
                             </div>
-                            <div className="absolute inset-0 w-full h-full backface-hidden bg-indigo-50 border-2 border-indigo-200 rounded-2xl shadow-sm flex items-center justify-center p-8 text-center" style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
-                                <p className="text-lg text-indigo-900">{cards[idx].answer}</p>
+                            <div className="absolute inset-0 w-full h-full backface-hidden bg-indigo-50 border-2 border-indigo-200 rounded-2xl shadow-sm flex items-center justify-center p-8 text-center" style=${{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
+                                <p className="text-lg text-indigo-900">${cards[idx].answer}</p>
                             </div>
-                        </motion.div>
+                        </${motion.div}>
                     </div>
                     <div className="flex items-center space-x-6">
-                        <button onClick={() => { setFlipped(false); setIdx((idx - 1 + cards.length) % cards.length); }} className="p-3 rounded-full bg-white border border-gray-200"><ChevronLeft /></button>
-                        <span className="text-sm font-medium text-gray-500">{idx + 1} / {cards.length}</span>
-                        <button onClick={() => { setFlipped(false); setIdx((idx + 1) % cards.length); }} className="p-3 rounded-full bg-white border border-gray-200"><ChevronRight /></button>
+                        <button onClick=${() => { setFlipped(false); setIdx((idx - 1 + cards.length) % cards.length); }} className="p-3 rounded-full bg-white border border-gray-200"><${ChevronLeft} /></button>
+                        <span className="text-sm font-medium text-gray-500">${idx + 1} / ${cards.length}</span>
+                        <button onClick=${() => { setFlipped(false); setIdx((idx + 1) % cards.length); }} className="p-3 rounded-full bg-white border border-gray-200"><${ChevronRight} /></button>
                     </div>
                 </div>
-            );
+            `;
         }
 
         function Quiz({ questions }) {
@@ -258,33 +261,33 @@
             const [score, setScore] = useState(0);
             const [finished, setFinished] = useState(false);
 
-            if (finished) return (
+            if (finished) return html`
                 <div className="text-center py-12 space-y-6">
                     <h2 className="text-3xl font-bold text-gray-900">Quiz Completed!</h2>
-                    <p className="text-xl text-gray-600">Score: <span className="font-bold text-indigo-600">{score}</span> / {questions.length}</p>
-                    <button onClick={() => { setIdx(0); setSelected(null); setScore(0); setFinished(false); }} className="px-6 py-3 bg-indigo-600 text-white rounded-xl">Try Again</button>
+                    <p className="text-xl text-gray-600">Score: <span className="font-bold text-indigo-600">${score}</span> / ${questions.length}</p>
+                    <button onClick=${() => { setIdx(0); setSelected(null); setScore(0); setFinished(false); }} className="px-6 py-3 bg-indigo-600 text-white rounded-xl">Try Again</button>
                 </div>
-            );
+            `;
 
             const q = questions[idx];
-            return (
+            return html`
                 <div className="max-w-2xl mx-auto py-8">
-                    <h3 className="text-2xl font-semibold text-gray-800 mb-8">{q.question}</h3>
+                    <h3 className="text-2xl font-semibold text-gray-800 mb-8">${q.question}</h3>
                     <div className="space-y-4">
-                        {q.options.map((opt, i) => (
-                            <button key={i} disabled={selected} onClick={() => { setSelected(opt); if (opt === q.correctAnswer) setScore(score + 1); }} className={`w-full text-left p-5 rounded-2xl border-2 transition-all ${selected === opt ? (opt === q.correctAnswer ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500') : (selected && opt === q.correctAnswer ? 'bg-green-50 border-green-500' : 'bg-white border-gray-200')}`}>
-                                {opt}
+                        ${q.options.map((opt, i) => html`
+                            <button key=${i} disabled=${selected} onClick=${() => { setSelected(opt); if (opt === q.correctAnswer) setScore(score + 1); }} className=${`w-full text-left p-5 rounded-2xl border-2 transition-all ${selected === opt ? (opt === q.correctAnswer ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500') : (selected && opt === q.correctAnswer ? 'bg-green-50 border-green-500' : 'bg-white border-gray-200')}`}>
+                                ${opt}
                             </button>
-                        ))}
+                        `)}
                     </div>
-                    {selected && (
+                    ${selected && html`
                         <div className="mt-8 p-6 bg-indigo-50 rounded-2xl">
-                            <p className="text-indigo-800 text-sm mb-4">{q.explanation}</p>
-                            <button onClick={() => { if (idx + 1 < questions.length) { setIdx(idx + 1); setSelected(null); } else setFinished(true); }} className="w-full py-3 bg-indigo-600 text-white rounded-xl">Next</button>
+                            <p className="text-indigo-800 text-sm mb-4">${q.explanation}</p>
+                            <button onClick=${() => { if (idx + 1 < questions.length) { setIdx(idx + 1); setSelected(null); } else setFinished(true); }} className="w-full py-3 bg-indigo-600 text-white rounded-xl">Next</button>
                         </div>
-                    )}
+                    `}
                 </div>
-            );
+            `;
         }
 
         function App() {
@@ -305,66 +308,66 @@
                 }
             };
 
-            return (
-                <div className="min-h-screen flex flex-col">
+            return html`
+                <div className="min-h-screen bg-[#FDFCFB] flex flex-col">
                     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
                         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setContent(null)}>
+                            <div className="flex items-center space-x-3 cursor-pointer" onClick=${() => setContent(null)}>
                                 <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                                    <BrainCircuit className="w-6 h-6 text-white" />
+                                    <${BrainCircuit} className="w-6 h-6 text-white" />
                                 </div>
                                 <span className="text-xl font-bold tracking-tight">StudyFlow <span className="text-indigo-600">AI</span></span>
                             </div>
-                            {content && <button onClick={() => setContent(null)} className="flex items-center space-x-2 text-sm text-gray-500 hover:text-indigo-600"><ArrowLeft className="w-4 h-4" /><span>New Subject</span></button>}
+                            ${content && html`<button onClick=${() => setContent(null)} className="flex items-center space-x-2 text-sm text-gray-500 hover:text-indigo-600"><${ArrowLeft} className="w-4 h-4" /><span>New Subject</span></button>`}
                         </div>
                     </header>
 
                     <main className="flex-grow max-w-7xl mx-auto px-6 py-12 w-full">
-                        <AnimatePresence mode="wait">
-                            {!content ? (
-                                <motion.div key="upload" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="max-w-3xl mx-auto space-y-12 text-center">
+                        <${AnimatePresence} mode="wait">
+                            ${!content ? html`
+                                <${motion.div} key="upload" initial=${{ opacity: 0, y: 20 }} animate=${{ opacity: 1, y: 0 }} exit=${{ opacity: 0, scale: 0.95 }} className="max-w-3xl mx-auto space-y-12 text-center">
                                     <div className="space-y-4">
-                                        <div className="inline-flex items-center space-x-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold uppercase tracking-widest"><Sparkles className="w-4 h-4" /><span>AI-Powered Learning</span></div>
+                                        <div className="inline-flex items-center space-x-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold uppercase tracking-widest"><${Sparkles} className="w-4 h-4" /><span>AI-Powered Learning</span></div>
                                         <h1 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tight leading-[1.1]">Master Any Subject <br /><span className="text-indigo-600">Deeply.</span></h1>
                                         <p className="text-xl text-gray-500 max-w-xl mx-auto leading-relaxed">Upload your materials and let our AI tutor guide you through complex topics with structured teaching, quizzes, and flashcards.</p>
                                     </div>
-                                    <FileUpload onProcess={handleProcess} isProcessing={loading} />
-                                </motion.div>
-                            ) : (
-                                <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12">
+                                    <${FileUpload} onProcess=${handleProcess} isProcessing=${loading} />
+                                </${motion.div}>
+                            ` : html`
+                                <${motion.div} key="content" initial=${{ opacity: 0 }} animate=${{ opacity: 1 }} className="space-y-12">
                                     <div className="text-center space-y-4">
-                                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">{content.subject}</h1>
+                                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">${content.subject}</h1>
                                         <div className="inline-flex px-3 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-full uppercase tracking-widest border border-green-100">Mastery Mode Active</div>
                                     </div>
                                     <div className="flex flex-col items-center space-y-8">
                                         <div className="inline-flex p-1.5 bg-gray-100 rounded-2xl">
-                                            {['guide', 'flashcards', 'quiz'].map(t => (
-                                                <button key={t} onClick={() => setTab(t)} className={`px-6 py-3 rounded-xl text-sm font-bold transition-all ${tab === t ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-                                                    {t.charAt(0).toUpperCase() + t.slice(1)}
+                                            ${['guide', 'flashcards', 'quiz'].map(t => html`
+                                                <button key=${t} onClick=${() => setTab(t)} className=${`px-6 py-3 rounded-xl text-sm font-bold transition-all ${tab === t ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                                                    ${t.charAt(0).toUpperCase() + t.slice(1)}
                                                 </button>
-                                            ))}
+                                            `)}
                                         </div>
                                         <div className="w-full">
-                                            {tab === 'guide' && <StudyGuide content={content} />}
-                                            {tab === 'flashcards' && <Flashcards cards={content.flashcards} />}
-                                            {tab === 'quiz' && <Quiz questions={content.quiz} />}
+                                            ${tab === 'guide' && html`<${StudyGuide} content=${content} />`}
+                                            ${tab === 'flashcards' && html`<${Flashcards} cards=${content.flashcards} />`}
+                                            ${tab === 'quiz' && html`<${Quiz} questions=${content.quiz} />`}
                                         </div>
                                     </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                                </${motion.div}>
+                            `}
+                        </${AnimatePresence}>
                     </main>
 
                     <footer className="py-12 border-t border-gray-100 text-center text-sm text-gray-400">
-                        <div className="flex items-center justify-center space-x-2 mb-2"><GraduationCap className="w-5 h-5" /><span>Powered by Gemini 3 Flash</span></div>
+                        <div className="flex items-center justify-center space-x-2 mb-2"><${GraduationCap} className="w-5 h-5" /><span>Powered by Gemini 3 Flash</span></div>
                         <p>© 2026 StudyFlow AI. Deep learning for everyone.</p>
                     </footer>
                 </div>
-            );
+            `;
         }
 
         const root = createRoot(document.getElementById('root'));
-        root.render(<App />);
+        root.render(React.createElement(App));
     </script>
 </body>
 </html>
