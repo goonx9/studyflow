@@ -4,32 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudyFlow - Manual Study Guide Builder</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Load React and other libraries via UMD for maximum compatibility -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- React & ReactDOM (UMD) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     
+    <!-- Babel Standalone for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .perspective-1000 { perspective: 1000px; }
-        .preserve-3d { transform-style: preserve-3d; }
-        .backface-hidden { backface-visibility: hidden; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #ccc; }
-
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ccc; }
     </style>
 </head>
 <body class="bg-[#FDFCFB] text-gray-900 selection:bg-indigo-100 selection:text-indigo-900">
@@ -38,7 +38,7 @@
         <div class="min-h-screen flex items-center justify-center p-8 text-center">
             <div class="space-y-4">
                 <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                <p class="text-gray-500 font-medium">Loading StudyFlow...</p>
+                <p class="text-gray-500 font-medium">Initializing StudyFlow...</p>
                 <noscript>
                     <p class="text-red-500">This application requires JavaScript to be enabled.</p>
                 </noscript>
@@ -46,19 +46,88 @@
         </div>
     </div>
 
+    <!-- Global Error Display (Hidden by default) -->
+    <div id="error-overlay" style="display:none; position:fixed; inset:0; background:white; z-index:9999; padding:2rem; overflow:auto;">
+        <h1 style="color:red; font-size:1.5rem; font-weight:bold; margin-bottom:1rem;">Application Error</h1>
+        <pre id="error-message" style="background:#f8f8f8; padding:1rem; border-radius:0.5rem; font-family:monospace; white-space:pre-wrap;"></pre>
+        <button onclick="location.reload()" style="margin-top:1rem; padding:0.5rem 1rem; background:indigo; color:white; border-radius:0.25rem;">Reload App</button>
+    </div>
+
     <script>
-        // Initialize htm with React
-        const html = htm.bind(React.createElement);
+        // Global error handler to catch initialization errors
+        window.onerror = function(msg, url, line, col, error) {
+            const overlay = document.getElementById('error-overlay');
+            const message = document.getElementById('error-message');
+            if (overlay && message) {
+                overlay.style.display = 'block';
+                message.textContent = `${msg}\n\nAt: ${url}:${line}:${col}\n\nStack: ${error?.stack || 'N/A'}`;
+            }
+            return false;
+        };
+    </script>
+
+    <script type="text/babel">
         const { useState, useEffect, useCallback, useMemo } = React;
 
-        // --- UI Components (Manual Version) ---
+        // --- Icons (SVG Components) ---
+        const Icon = ({ name, className = "w-5 h-5" }) => {
+            const icons = {
+                sparkles: (
+                    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                    </svg>
+                ),
+                book: (
+                    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                    </svg>
+                ),
+                arrowRight: (
+                    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                ),
+                brain: (
+                    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+                    </svg>
+                ),
+                plus: (
+                    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                ),
+                x: (
+                    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                ),
+                layout: (
+                    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 4.5v15m6-15v15m-10.5-3h15m-15-9h15m-15-3a1.5 1.5 0 011.5-1.5h15a1.5 1.5 0 011.5 1.5v15a1.5 1.5 0 01-1.5 1.5h-15a1.5 1.5 0 01-1.5-1.5v-15z" />
+                    </svg>
+                ),
+                layers: (
+                    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 7.125L12 2.25l9.75 4.875-9.75 4.875-9.75-4.875zM2.25 12l9.75 4.875 9.75-4.875M2.25 16.875l9.75 4.875 9.75-4.875" />
+                    </svg>
+                ),
+                help: (
+                    <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                    </svg>
+                )
+            };
+            return icons[name] || null;
+        };
 
+        // --- Main App Component ---
         function App() {
             const [subject, setSubject] = useState('');
             const [isStarted, setIsStarted] = useState(false);
             const [tab, setTab] = useState('guide');
             
-            // Manual Content State
+            // Content State
             const [summary, setSummary] = useState('');
             const [topics, setTopics] = useState([]);
             const [flashcards, setFlashcards] = useState([]);
@@ -95,278 +164,261 @@
                 }
             };
 
-            // --- Render Helpers ---
-
-            const renderIcon = (name, className = "w-5 h-5") => {
-                return html`<i data-lucide="${name}" class="${className}"></i>`;
-            };
-
-            useEffect(() => {
-                if (window.lucide) window.lucide.createIcons();
-            });
-
             if (!isStarted) {
-                return html`
-                    <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-white to-indigo-50/30">
-                        <div class="max-w-2xl w-full space-y-12 text-center fade-in">
-                            <div class="space-y-6">
-                                <div class="inline-flex items-center space-x-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold uppercase tracking-widest">
-                                    ${renderIcon('sparkles', 'w-4 h-4')}
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-white to-indigo-50/30">
+                        <div className="max-w-2xl w-full space-y-12 text-center fade-in">
+                            <div className="space-y-6">
+                                <div className="inline-flex items-center space-x-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold uppercase tracking-widest">
+                                    <Icon name="sparkles" className="w-4 h-4" />
                                     <span>Personal Study Companion</span>
                                 </div>
-                                <h1 class="text-5xl md:text-6xl font-black text-gray-900 tracking-tight leading-[1.1]">
-                                    Master Any Subject <br /><span class="text-indigo-600">Step by Step.</span>
+                                <h1 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tight leading-[1.1]">
+                                    Master Any Subject <br /><span className="text-indigo-600">Step by Step.</span>
                                 </h1>
-                                <p class="text-xl text-gray-500 max-w-xl mx-auto leading-relaxed">
+                                <p className="text-xl text-gray-500 max-w-xl mx-auto leading-relaxed">
                                     Create your own structured study guides, interactive flashcards, and quizzes to master complex topics.
                                 </p>
                             </div>
 
-                            <form onSubmit=${handleStart} class="max-w-md mx-auto space-y-6">
-                                <div class="relative">
-                                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                                        ${renderIcon('book-open')}
+                            <form onSubmit={handleStart} className="max-w-md mx-auto space-y-6">
+                                <div className="relative">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                        <Icon name="book" />
                                     </div>
                                     <input
                                         type="text"
-                                        value=${subject}
-                                        onChange=${e => setSubject(e.target.value)}
+                                        value={subject}
+                                        onChange={e => setSubject(e.target.value)}
                                         placeholder="Enter subject name..."
-                                        class="w-full pl-12 pr-4 py-5 bg-white border-2 border-gray-100 rounded-2xl focus:border-indigo-500 focus:ring-0 transition-all text-lg shadow-sm"
+                                        className="w-full pl-12 pr-4 py-5 bg-white border-2 border-gray-100 rounded-2xl focus:border-indigo-500 focus:ring-0 transition-all text-lg shadow-sm"
                                         required
                                     />
                                 </div>
                                 <button
                                     type="submit"
-                                    class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center space-x-3"
+                                    className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center space-x-3"
                                 >
                                     <span>Start Building</span>
-                                    ${renderIcon('arrow-right', 'w-6 h-6')}
+                                    <Icon name="arrowRight" className="w-6 h-6" />
                                 </button>
                             </form>
                         </div>
                     </div>
-                `;
+                );
             }
 
-            return html`
-                <div class="min-h-screen bg-[#FDFCFB] flex flex-col">
-                    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-                        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                            <div class="flex items-center space-x-3 cursor-pointer" onClick=${() => setIsStarted(false)}>
-                                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                                    ${renderIcon('brain-circuit', 'w-6 h-6 text-white')}
+            return (
+                <div className="min-h-screen bg-[#FDFCFB] flex flex-col">
+                    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+                        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setIsStarted(false)}>
+                                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
+                                    <Icon name="brain" className="w-6 h-6 text-white" />
                                 </div>
-                                <span class="text-xl font-bold tracking-tight">StudyFlow</span>
+                                <span className="text-xl font-bold tracking-tight">StudyFlow</span>
                             </div>
-                            <div class="flex items-center space-x-4">
-                                <span class="text-sm font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-wider">${subject}</span>
-                                <button onClick=${() => setIsStarted(false)} class="text-gray-400 hover:text-red-500 transition-colors">
-                                    ${renderIcon('x')}
+                            <div className="flex items-center space-x-4">
+                                <span className="text-sm font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-wider">{subject}</span>
+                                <button onClick={() => setIsStarted(false)} className="text-gray-400 hover:text-red-500 transition-colors">
+                                    <Icon name="x" />
                                 </button>
                             </div>
                         </div>
                     </header>
 
-                    <main class="flex-grow max-w-5xl mx-auto px-6 py-12 w-full space-y-12">
-                        <!-- Navigation Tabs -->
-                        <div class="flex justify-center">
-                            <div class="inline-flex p-1.5 bg-gray-100 rounded-2xl">
-                                ${[
+                    <main className="flex-grow max-w-5xl mx-auto px-6 py-12 w-full space-y-12">
+                        <div className="flex justify-center">
+                            <div className="inline-flex p-1.5 bg-gray-100 rounded-2xl">
+                                {[
                                     { id: 'guide', label: 'Study Guide', icon: 'layout' },
                                     { id: 'flashcards', label: 'Flashcards', icon: 'layers' },
-                                    { id: 'quiz', label: 'Practice Quiz', icon: 'help-circle' },
-                                ].map(t => html`
+                                    { id: 'quiz', label: 'Practice Quiz', icon: 'help' },
+                                ].map(t => (
                                     <button
-                                        key=${t.id}
-                                        onClick=${() => setTab(t.id)}
-                                        class=${`flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
+                                        key={t.id}
+                                        onClick={() => setTab(t.id)}
+                                        className={`flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
                                             tab === t.id ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                                         }`}
                                     >
-                                        ${renderIcon(t.icon, 'w-4 h-4')}
-                                        <span>${t.label}</span>
+                                        <Icon name={t.icon} className="w-4 h-4" />
+                                        <span>{t.label}</span>
                                     </button>
-                                `)}
+                                ))}
                             </div>
                         </div>
 
-                        <!-- Content Area -->
-                        <div class="fade-in">
-                            ${tab === 'guide' && html`
-                                <div class="space-y-12">
-                                    <!-- Summary Section -->
-                                    <section class="space-y-4">
-                                        <h2 class="text-sm font-bold text-indigo-600 uppercase tracking-widest flex items-center space-x-2">
-                                            ${renderIcon('book-open', 'w-4 h-4')}
+                        <div className="fade-in">
+                            {tab === 'guide' && (
+                                <div className="space-y-12">
+                                    <section className="space-y-4">
+                                        <h2 className="text-sm font-bold text-indigo-600 uppercase tracking-widest flex items-center space-x-2">
+                                            <Icon name="book" className="w-4 h-4" />
                                             <span>Subject Summary</span>
                                         </h2>
                                         <textarea
-                                            value=${summary}
-                                            onChange=${e => setSummary(e.target.value)}
+                                            value={summary}
+                                            onChange={e => setSummary(e.target.value)}
                                             placeholder="Write a brief overview of the subject..."
-                                            class="w-full p-6 bg-white border-2 border-gray-100 rounded-3xl focus:border-indigo-500 focus:ring-0 transition-all text-lg italic text-gray-600 min-h-[120px]"
+                                            className="w-full p-6 bg-white border-2 border-gray-100 rounded-3xl focus:border-indigo-500 focus:ring-0 transition-all text-lg italic text-gray-600 min-h-[120px]"
                                         ></textarea>
                                     </section>
 
-                                    <!-- Topics Section -->
-                                    <section class="space-y-8">
-                                        <h2 class="text-sm font-bold text-indigo-600 uppercase tracking-widest flex items-center space-x-2">
-                                            ${renderIcon('lightbulb', 'w-4 h-4')}
+                                    <section className="space-y-8">
+                                        <h2 className="text-sm font-bold text-indigo-600 uppercase tracking-widest flex items-center space-x-2">
+                                            <Icon name="sparkles" className="w-4 h-4" />
                                             <span>Key Topics</span>
                                         </h2>
                                         
-                                        <div class="grid gap-6">
-                                            ${topics.map((topic, i) => html`
-                                                <div key=${i} class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-4">
-                                                    <h3 class="text-2xl font-bold text-gray-900">${topic.title}</h3>
-                                                    <p class="text-gray-600 leading-relaxed whitespace-pre-wrap">${topic.content}</p>
+                                        <div className="grid gap-6">
+                                            {topics.map((topic, i) => (
+                                                <div key={i} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                                                    <h3 className="text-2xl font-bold text-gray-900">{topic.title}</h3>
+                                                    <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{topic.content}</p>
                                                 </div>
-                                            `)}
+                                            ))}
 
-                                            <!-- Add Topic Form -->
-                                            <div class="bg-indigo-50/50 p-8 rounded-3xl border-2 border-dashed border-indigo-100 space-y-4">
+                                            <div className="bg-indigo-50/50 p-8 rounded-3xl border-2 border-dashed border-indigo-100 space-y-4">
                                                 <input
                                                     type="text"
                                                     placeholder="Topic Title"
-                                                    value=${newTopic.title}
-                                                    onChange=${e => setNewTopic({ ...newTopic, title: e.target.value })}
-                                                    class="w-full p-4 bg-white border border-indigo-100 rounded-xl focus:border-indigo-500 focus:ring-0"
+                                                    value={newTopic.title}
+                                                    onChange={e => setNewTopic({ ...newTopic, title: e.target.value })}
+                                                    className="w-full p-4 bg-white border border-indigo-100 rounded-xl focus:border-indigo-500 focus:ring-0"
                                                 />
                                                 <textarea
                                                     placeholder="Topic Content / Explanation"
-                                                    value=${newTopic.content}
-                                                    onChange=${e => setNewTopic({ ...newTopic, content: e.target.value })}
-                                                    class="w-full p-4 bg-white border border-indigo-100 rounded-xl focus:border-indigo-500 focus:ring-0 min-h-[100px]"
+                                                    value={newTopic.content}
+                                                    onChange={e => setNewTopic({ ...newTopic, content: e.target.value })}
+                                                    className="w-full p-4 bg-white border border-indigo-100 rounded-xl focus:border-indigo-500 focus:ring-0 min-h-[100px]"
                                                 ></textarea>
-                                                <button onClick=${addTopic} class="flex items-center space-x-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors">
-                                                    ${renderIcon('plus', 'w-4 h-4')}
+                                                <button onClick={addTopic} className="flex items-center space-x-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors">
+                                                    <Icon name="plus" className="w-4 h-4" />
                                                     <span>Add Topic</span>
                                                 </button>
                                             </div>
                                         </div>
                                     </section>
                                 </div>
-                            `}
+                            )}
 
-                            ${tab === 'flashcards' && html`
-                                <div class="space-y-12">
-                                    <div class="grid md:grid-cols-2 gap-6">
-                                        ${flashcards.map((card, i) => html`
-                                            <div key=${i} class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-                                                <div class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Question</div>
-                                                <p class="font-bold text-gray-800">${card.question}</p>
-                                                <div class="h-px bg-gray-100 w-full"></div>
-                                                <div class="text-xs font-bold text-green-400 uppercase tracking-widest">Answer</div>
-                                                <p class="text-gray-600">${card.answer}</p>
+                            {tab === 'flashcards' && (
+                                <div className="space-y-12">
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        {flashcards.map((card, i) => (
+                                            <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                                                <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest">Question</div>
+                                                <p className="font-bold text-gray-800">{card.question}</p>
+                                                <div className="h-px bg-gray-100 w-full"></div>
+                                                <div className="text-xs font-bold text-green-400 uppercase tracking-widest">Answer</div>
+                                                <p className="text-gray-600">{card.answer}</p>
                                             </div>
-                                        `)}
+                                        ))}
 
-                                        <!-- Add Card Form -->
-                                        <div class="bg-indigo-50/50 p-6 rounded-2xl border-2 border-dashed border-indigo-100 space-y-4">
+                                        <div className="bg-indigo-50/50 p-6 rounded-2xl border-2 border-dashed border-indigo-100 space-y-4">
                                             <input
                                                 placeholder="Question"
-                                                value=${newCard.question}
-                                                onChange=${e => setNewCard({ ...newCard, question: e.target.value })}
-                                                class="w-full p-3 bg-white border border-indigo-100 rounded-xl"
+                                                value={newCard.question}
+                                                onChange={e => setNewCard({ ...newCard, question: e.target.value })}
+                                                className="w-full p-3 bg-white border border-indigo-100 rounded-xl"
                                             />
                                             <input
                                                 placeholder="Answer"
-                                                value=${newCard.answer}
-                                                onChange=${e => setNewCard({ ...newCard, answer: e.target.value })}
-                                                class="w-full p-3 bg-white border border-indigo-100 rounded-xl"
+                                                value={newCard.answer}
+                                                onChange={e => setNewCard({ ...newCard, answer: e.target.value })}
+                                                className="w-full p-3 bg-white border border-indigo-100 rounded-xl"
                                             />
-                                            <button onClick=${addCard} class="w-full flex items-center justify-center space-x-2 py-3 bg-indigo-600 text-white rounded-xl font-bold">
-                                                ${renderIcon('plus', 'w-4 h-4')}
+                                            <button onClick={addCard} className="w-full flex items-center justify-center space-x-2 py-3 bg-indigo-600 text-white rounded-xl font-bold">
+                                                <Icon name="plus" className="w-4 h-4" />
                                                 <span>Add Flashcard</span>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                            `}
+                            )}
 
-                            ${tab === 'quiz' && html`
-                                <div class="space-y-12">
-                                    <div class="grid gap-8">
-                                        ${quiz.map((q, i) => html`
-                                            <div key=${i} class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
-                                                <div class="flex items-center justify-between">
-                                                    <h3 class="text-xl font-bold text-gray-900">${q.question}</h3>
-                                                    <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Question ${i + 1}</span>
+                            {tab === 'quiz' && (
+                                <div className="space-y-12">
+                                    <div className="grid gap-8">
+                                        {quiz.map((q, i) => (
+                                            <div key={i} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
+                                                <div className="flex items-center justify-between">
+                                                    <h3 className="text-xl font-bold text-gray-900">{q.question}</h3>
+                                                    <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest">Question {i + 1}</span>
                                                 </div>
-                                                <div class="grid md:grid-cols-2 gap-4">
-                                                    ${q.options.map((opt, j) => html`
-                                                        <div key=${j} class=${`p-4 rounded-xl border-2 ${opt === q.correctAnswer ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-100 text-gray-500'}`}>
-                                                            ${opt}
+                                                <div className="grid md:grid-cols-2 gap-4">
+                                                    {q.options.map((opt, j) => (
+                                                        <div key={j} className={`p-4 rounded-xl border-2 ${opt === q.correctAnswer ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-100 text-gray-500'}`}>
+                                                            {opt}
                                                         </div>
-                                                    `)}
+                                                    ))}
                                                 </div>
-                                                <div class="p-4 bg-indigo-50 rounded-xl text-sm text-indigo-800">
-                                                    <span class="font-bold">Explanation:</span> ${q.explanation}
+                                                <div className="p-4 bg-indigo-50 rounded-xl text-sm text-indigo-800">
+                                                    <span className="font-bold">Explanation:</span> {q.explanation}
                                                 </div>
                                             </div>
-                                        `)}
+                                        ))}
 
-                                        <!-- Add Quiz Form -->
-                                        <div class="bg-indigo-50/50 p-8 rounded-3xl border-2 border-dashed border-indigo-100 space-y-6">
+                                        <div className="bg-indigo-50/50 p-8 rounded-3xl border-2 border-dashed border-indigo-100 space-y-6">
                                             <input
                                                 placeholder="Question"
-                                                value=${newQuiz.question}
-                                                onChange=${e => setNewQuiz({ ...newQuiz, question: e.target.value })}
-                                                class="w-full p-4 bg-white border border-indigo-100 rounded-xl"
+                                                value={newQuiz.question}
+                                                onChange={e => setNewQuiz({ ...newQuiz, question: e.target.value })}
+                                                className="w-full p-4 bg-white border border-indigo-100 rounded-xl"
                                             />
-                                            <div class="grid md:grid-cols-2 gap-4">
-                                                ${newQuiz.options.map((opt, i) => html`
+                                            <div className="grid md:grid-cols-2 gap-4">
+                                                {newQuiz.options.map((opt, i) => (
                                                     <input
-                                                        key=${i}
-                                                        placeholder=${`Option ${i + 1}`}
-                                                        value=${opt}
-                                                        onChange=${e => {
+                                                        key={i}
+                                                        placeholder={`Option ${i + 1}`}
+                                                        value={opt}
+                                                        onChange={e => {
                                                             const opts = [...newQuiz.options];
                                                             opts[i] = e.target.value;
                                                             setNewQuiz({ ...newQuiz, options: opts });
                                                         }}
-                                                        class="p-3 bg-white border border-indigo-100 rounded-xl"
+                                                        className="p-3 bg-white border border-indigo-100 rounded-xl"
                                                     />
-                                                `)}
+                                                ))}
                                             </div>
                                             <input
                                                 placeholder="Correct Answer (must match one option exactly)"
-                                                value=${newQuiz.correctAnswer}
-                                                onChange=${e => setNewQuiz({ ...newQuiz, correctAnswer: e.target.value })}
-                                                class="w-full p-4 bg-white border border-indigo-100 rounded-xl"
+                                                value={newQuiz.correctAnswer}
+                                                onChange={e => setNewQuiz({ ...newQuiz, correctAnswer: e.target.value })}
+                                                className="w-full p-4 bg-white border border-indigo-100 rounded-xl"
                                             />
                                             <textarea
                                                 placeholder="Explanation"
-                                                value=${newQuiz.explanation}
-                                                onChange=${e => setNewQuiz({ ...newQuiz, explanation: e.target.value })}
-                                                class="w-full p-4 bg-white border border-indigo-100 rounded-xl"
+                                                value={newQuiz.explanation}
+                                                onChange={e => setNewQuiz({ ...newQuiz, explanation: e.target.value })}
+                                                className="w-full p-4 bg-white border border-indigo-100 rounded-xl"
                                             ></textarea>
-                                            <button onClick=${addQuiz} class="w-full flex items-center justify-center space-x-2 py-4 bg-indigo-600 text-white rounded-xl font-bold">
-                                                ${renderIcon('plus', 'w-4 h-4')}
+                                            <button onClick={addQuiz} className="w-full flex items-center justify-center space-x-2 py-4 bg-indigo-600 text-white rounded-xl font-bold">
+                                                <Icon name="plus" className="w-4 h-4" />
                                                 <span>Add Quiz Question</span>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                            `}
+                            )}
                         </div>
                     </main>
 
-                    <footer class="py-12 border-t border-gray-100 text-center text-sm text-gray-400">
-                        <div class="flex items-center justify-center space-x-2 mb-2">
-                            ${renderIcon('graduation-cap')}
+                    <footer className="py-12 border-t border-gray-100 text-center text-sm text-gray-400">
+                        <div className="flex items-center justify-center space-x-2 mb-2">
+                            <Icon name="brain" className="w-4 h-4" />
                             <span>StudyFlow Builder</span>
                         </div>
                         <p>© 2026 StudyFlow. Structured learning made simple.</p>
                     </footer>
                 </div>
-            `;
+            );
         }
 
         // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(App));
+        root.render(<App />);
     </script>
 </body>
 </html>
