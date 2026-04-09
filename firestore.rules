@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId} (matches auth.uid)
+    // Fields:
+    //   - uid: string (required)
+    //   - displayName: string (optional)
+    //   - photoURL: string (optional)
+    //   - email: string (required)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: studyGuides
+    // Document ID: auto-generated
+    // Fields:
+    //   - uid: string (required) - Owner's UID
+    //   - subject: string (required)
+    //   - summary: string (required)
+    //   - topics: list (required) - Array of {title, content}
+    //   - flashcards: list (required) - Array of {question, answer}
+    //   - quiz: list (required) - Array of {question, options, correct, explanation}
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'createdAt']) &&
+             data.uid == request.auth.uid &&
+             data.email is string &&
+             data.email.size() < 255;
+    }
+
+    function isValidStudyGuide(data) {
+      return data.keys().hasAll(['uid', 'subject', 'summary', 'topics', 'flashcards', 'quiz', 'createdAt']) &&
+             data.uid == request.auth.uid &&
+             data.subject is string && data.subject.size() < 200 &&
+             data.summary is string && data.summary.size() < 10000 &&
+             data.topics is list && data.topics.size() < 50 &&
+             data.flashcards is list && data.flashcards.size() < 50 &&
+             data.quiz is list && data.quiz.size() < 50;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "franklinlaptop10@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && 
+                    request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    match /studyGuides/{guideId} {
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isAuthenticated() && isValidStudyGuide(request.resource.data);
+      allow update: if isDocOwner() && isValidStudyGuide(request.resource.data) &&
+                    request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isDocOwner();
+    }
+  }
+}
