@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyFlow AI - Master Any Subject</title>
+    <title>StudyFlow AI - Your Personal AI Teacher</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -36,14 +39,14 @@
         .rotate-y-180 { transform: rotateY(180deg); }
         .card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        .shimmer {
-            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        pre { white-space: pre-wrap; word-break: break-word; }
+        
+        .formula-card {
+            background: #f8fafc;
+            border-left: 4px solid #6366f1;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
         }
     </style>
 </head>
@@ -51,86 +54,60 @@
 
     <!-- App Container -->
     <div id="app">
-        <!-- Auth Overlay (Hidden if logged in) -->
-        <div id="auth-screen" class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-white to-indigo-50/30">
-            <div class="max-w-md w-full text-center space-y-8 fade-in">
-                <div class="space-y-4">
-                    <div class="w-20 h-20 bg-indigo-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl shadow-indigo-200">
-                        <svg class="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                    </div>
-                    <h1 class="text-4xl font-black tracking-tight text-gray-900">StudyFlow AI</h1>
-                    <p class="text-gray-500">Sign in to save your study guides and access them anywhere.</p>
-                </div>
-                <button id="login-btn" class="w-full py-4 bg-white border-2 border-gray-100 rounded-2xl font-bold text-lg shadow-sm hover:border-indigo-500 hover:text-indigo-600 transition-all flex items-center justify-center space-x-3">
-                    <svg class="w-6 h-6" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                    <span>Continue with Google</span>
-                </button>
-            </div>
-        </div>
-
         <!-- Home Screen -->
-        <div id="home-screen" class="hidden min-h-screen flex flex-col bg-gradient-to-b from-white to-indigo-50/30">
-            <header class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between w-full">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <div id="home-screen" class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-white to-indigo-50/30">
+            <div class="max-w-2xl w-full space-y-12 text-center fade-in">
+                <div class="space-y-6">
+                    <div class="inline-flex items-center space-x-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold uppercase tracking-widest">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z"/></svg>
+                        <span>Standalone AI Teacher</span>
                     </div>
-                    <span class="text-lg font-bold">StudyFlow</span>
+                    <h1 class="text-5xl md:text-6xl font-black text-gray-900 tracking-tight leading-[1.1]">
+                        Deep Learning <br /><span class="text-indigo-600">Made Simple.</span>
+                    </h1>
+                    <p class="text-xl text-gray-500 max-w-xl mx-auto leading-relaxed">
+                        Upload your materials and let your AI teacher create lecture notes, simplify formulas, and test your knowledge.
+                    </p>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div id="user-profile" class="flex items-center space-x-3 bg-white p-1 pr-4 rounded-full border border-gray-100 shadow-sm">
-                        <img id="user-avatar" src="" class="w-8 h-8 rounded-full border border-gray-100" />
-                        <span id="user-name" class="text-sm font-bold text-gray-700"></span>
-                    </div>
-                    <button id="logout-btn" class="text-gray-400 hover:text-red-500 transition-colors">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                    </button>
-                </div>
-            </header>
 
-            <main class="flex-grow max-w-7xl mx-auto px-6 py-12 w-full grid lg:grid-cols-[1fr,350px] gap-12">
-                <div class="space-y-12">
+                <div class="max-w-md mx-auto space-y-6">
                     <div class="space-y-4">
-                        <h2 class="text-4xl font-black tracking-tight text-gray-900">Welcome back!</h2>
-                        <p class="text-gray-500 text-lg">Ready to master something new today?</p>
-                    </div>
-
-                    <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-8">
-                        <div class="space-y-6">
-                            <div class="relative">
-                                <input id="subject-input" type="text" placeholder="What are we studying?" class="w-full pl-6 pr-4 py-5 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-indigo-500 focus:bg-white focus:outline-none transition-all text-lg font-medium" />
+                        <div class="relative">
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                             </div>
-                            <div class="relative group">
-                                <input id="file-input" type="file" multiple accept=".pdf,.txt" class="hidden" />
-                                <label for="file-input" class="flex flex-col items-center justify-center w-full py-10 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 hover:bg-indigo-50/50 hover:border-indigo-300 transition-all cursor-pointer">
-                                    <svg class="w-10 h-10 text-gray-400 group-hover:text-indigo-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                                    <span id="file-label" class="text-sm font-bold text-gray-500">Drop PDFs or Text files here</span>
-                                </label>
-                            </div>
+                            <input
+                                id="subject-input"
+                                type="text"
+                                placeholder="What are we learning today?"
+                                class="w-full pl-12 pr-4 py-5 bg-white border-2 border-gray-100 rounded-2xl focus:border-indigo-500 focus:outline-none transition-all text-lg shadow-sm font-medium"
+                            />
                         </div>
-                        <button id="start-btn" class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center space-x-3">
-                            <span>Teach Me</span>
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                        </button>
+                        
+                        <div class="relative group">
+                            <input id="file-input" type="file" multiple accept=".pdf,.txt" class="hidden" />
+                            <label for="file-input" class="flex flex-col items-center justify-center w-full py-10 border-2 border-dashed border-gray-200 rounded-2xl bg-white hover:bg-indigo-50/50 hover:border-indigo-300 transition-all cursor-pointer">
+                                <svg class="w-10 h-10 text-gray-400 group-hover:text-indigo-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                <span id="file-label" class="text-sm font-bold text-gray-500">Upload PDFs or Text files</span>
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <div class="space-y-8">
-                    <h3 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                        <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                        <span>Your Subjects</span>
-                    </h3>
-                    <div id="subjects-list" class="space-y-4">
-                        <!-- Subjects will be loaded here -->
+                    <button
+                        id="start-btn"
+                        class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center space-x-3"
+                    >
+                        <span>Teach Me</span>
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </button>
+                    
+                    <div id="loading-overlay" class="hidden fixed inset-0 bg-white/90 backdrop-blur-sm z-[100] flex flex-col items-center justify-center space-y-6">
+                        <div class="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                        <div class="text-center px-6">
+                            <h3 class="text-xl font-bold text-gray-900">Your AI Teacher is preparing...</h3>
+                            <p class="text-gray-500">Analyzing materials, simplifying formulas, and creating tests.</p>
+                        </div>
                     </div>
-                </div>
-            </main>
-
-            <div id="loading-overlay" class="hidden fixed inset-0 bg-white/90 backdrop-blur-sm z-[100] flex flex-col items-center justify-center space-y-6">
-                <div class="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                <div class="text-center px-6">
-                    <h3 class="text-xl font-bold text-gray-900">AI is analyzing your materials...</h3>
-                    <p class="text-gray-500">Extracting knowledge and building your study guide.</p>
                 </div>
             </div>
         </div>
@@ -139,27 +116,32 @@
         <div id="main-screen" class="hidden min-h-screen flex flex-col">
             <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
                 <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                    <div class="flex items-center space-x-3 cursor-pointer" id="logo-btn">
+                    <div class="flex items-center space-x-3 cursor-pointer" onclick="location.reload()">
                         <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
                         </div>
                         <span class="text-xl font-bold tracking-tight">StudyFlow AI</span>
                     </div>
                     <div class="flex items-center space-x-4">
                         <span id="current-subject-display" class="text-sm font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-wider"></span>
-                        <button id="close-btn" class="text-gray-400 hover:text-red-500 transition-colors">
+                        <button onclick="location.reload()" class="text-gray-400 hover:text-red-500 transition-colors">
                             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
                 </div>
             </header>
 
-            <main class="flex-grow max-w-5xl mx-auto px-6 py-12 w-full space-y-12">
-                <div class="flex justify-center">
-                    <div class="inline-flex p-1.5 bg-gray-100 rounded-2xl" id="tabs-container">
-                        <button class="tab-btn flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 tab-active" data-tab="guide">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
-                            <span>Study Guide</span>
+            <main class="flex-grow max-w-6xl mx-auto px-6 py-12 w-full space-y-12">
+                <!-- Navigation Tabs -->
+                <div class="flex justify-center overflow-x-auto pb-4">
+                    <div class="inline-flex p-1.5 bg-gray-100 rounded-2xl whitespace-nowrap" id="tabs-container">
+                        <button class="tab-btn flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 tab-active" data-tab="notes">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>Lecture Notes</span>
+                        </button>
+                        <button class="tab-btn flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-gray-500 hover:text-gray-700" data-tab="formulas">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            <span>Formulas</span>
                         </button>
                         <button class="tab-btn flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-gray-500 hover:text-gray-700" data-tab="flashcards">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
@@ -169,158 +151,60 @@
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>Practice Quiz</span>
                         </button>
+                        <button class="tab-btn flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-gray-500 hover:text-gray-700" data-tab="test">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                            <span>Final Test</span>
+                        </button>
                     </div>
                 </div>
 
                 <div id="tab-content" class="fade-in"></div>
             </main>
+
+            <footer class="py-12 border-t border-gray-100 text-center text-sm text-gray-400">
+                <div class="flex items-center justify-center space-x-2 mb-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
+                    <span>StudyFlow AI Teacher</span>
+                </div>
+                <p>© 2026 StudyFlow. Powered by Gemini AI.</p>
+            </footer>
         </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { GoogleGenAI, Type } from "https://esm.sh/@google/genai";
         import * as pdfjsLib from "https://esm.sh/pdfjs-dist@4.0.379";
 
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://esm.sh/pdfjs-dist@4.0.379/build/pdf.worker.mjs';
 
-        // --- Firebase Config ---
-        const firebaseConfig = {
-            projectId: "gen-lang-client-0715596773",
-            appId: "1:375492714069:web:ee69af66de0c36b0effedc",
-            apiKey: "AIzaSyDxZc2uyhBcjSnXfXHopbZFoP4RF_zPG8U",
-            authDomain: "gen-lang-client-0715596773.firebaseapp.com",
-            firestoreDatabaseId: "ai-studio-734f3abb-c33f-4162-86a7-a54d439ff350"
+        // --- State ---
+        const state = {
+            subject: '',
+            tab: 'notes',
+            files: [],
+            data: null // Will hold AI response
         };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-        const provider = new GoogleAuthProvider();
 
         // --- AI Initialization ---
         const ai = new GoogleGenAI({ apiKey: "GEMINI_API_KEY" });
 
-        // --- State ---
-        const state = {
-            user: null,
-            currentGuide: null,
-            tab: 'guide',
-            files: [],
-            guides: []
-        };
-
         // --- DOM Elements ---
-        const authScreen = document.getElementById('auth-screen');
-        const homeScreen = document.getElementById('home-screen');
-        const mainScreen = document.getElementById('main-screen');
-        const loginBtn = document.getElementById('login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const startBtn = document.getElementById('start-btn');
-        const subjectInput = document.getElementById('subject-input');
         const fileInput = document.getElementById('file-input');
         const fileLabel = document.getElementById('file-label');
+        const startBtn = document.getElementById('start-btn');
+        const subjectInput = document.getElementById('subject-input');
         const loadingOverlay = document.getElementById('loading-overlay');
-        const subjectsList = document.getElementById('subjects-list');
+        const homeScreen = document.getElementById('home-screen');
+        const mainScreen = document.getElementById('main-screen');
         const tabContent = document.getElementById('tab-content');
         const currentSubjectDisplay = document.getElementById('current-subject-display');
-        const closeBtn = document.getElementById('close-btn');
-        const logoBtn = document.getElementById('logo-btn');
         const tabBtns = document.querySelectorAll('.tab-btn');
 
-        // --- Auth Logic ---
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                state.user = user;
-                authScreen.classList.add('hidden');
-                homeScreen.classList.remove('hidden');
-                document.getElementById('user-name').textContent = user.displayName;
-                document.getElementById('user-avatar').src = user.photoURL;
-                
-                // Save/Update user profile
-                await setDoc(doc(db, 'users', user.uid), {
-                    uid: user.uid,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL,
-                    email: user.email,
-                    createdAt: serverTimestamp()
-                }, { merge: true });
-
-                loadUserGuides();
-            } else {
-                state.user = null;
-                authScreen.classList.remove('hidden');
-                homeScreen.classList.add('hidden');
-                mainScreen.classList.add('hidden');
-            }
-        });
-
-        loginBtn.addEventListener('click', () => signInWithPopup(auth, provider));
-        logoutBtn.addEventListener('click', () => signOut(auth));
-
-        // --- Data Logic ---
-
-        function loadUserGuides() {
-            const q = query(
-                collection(db, 'studyGuides'),
-                where('uid', '==', state.user.uid),
-                orderBy('createdAt', 'desc')
-            );
-
-            onSnapshot(q, (snapshot) => {
-                state.guides = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderGuidesList();
-            }, (error) => {
-                console.error("Firestore Error: ", error);
-            });
-        }
-
-        function renderGuidesList() {
-            subjectsList.innerHTML = state.guides.length === 0 
-                ? '<p class="text-gray-400 text-sm italic">No subjects yet. Start by creating one!</p>'
-                : state.guides.map(g => `
-                    <div class="group flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-indigo-200 hover:shadow-md transition-all cursor-pointer" onclick="openGuide('${g.id}')">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-bold">
-                                ${g.subject.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-900">${g.subject}</h4>
-                                <p class="text-xs text-gray-400">${new Date(g.createdAt?.toDate()).toLocaleDateString()}</p>
-                            </div>
-                        </div>
-                        <button onclick="event.stopPropagation(); deleteGuide('${g.id}')" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
-                    </div>
-                `).join('');
-        }
-
-        window.openGuide = (id) => {
-            const guide = state.guides.find(g => g.id === id);
-            if (guide) {
-                state.currentGuide = guide;
-                homeScreen.classList.add('hidden');
-                mainScreen.classList.remove('hidden');
-                currentSubjectDisplay.textContent = guide.subject;
-                switchTab('guide');
-            }
-        };
-
-        window.deleteGuide = async (id) => {
-            if (confirm('Delete this study guide?')) {
-                await deleteDoc(doc(db, 'studyGuides', id));
-            }
-        };
-
-        // --- App Logic ---
+        // --- Event Listeners ---
 
         fileInput.addEventListener('change', (e) => {
             state.files = Array.from(e.target.files);
-            fileLabel.textContent = state.files.length > 0 ? `${state.files.length} file(s) selected` : 'Drop PDFs or Text files here';
+            fileLabel.textContent = state.files.length > 0 ? `${state.files.length} file(s) selected` : 'Upload PDFs or Text files';
             fileLabel.classList.add('text-indigo-600');
         });
 
@@ -336,23 +220,13 @@
                     fullText += file.type === "application/pdf" ? await extractTextFromPDF(file) : await file.text();
                 }
 
-                const guideData = await generateStudyMaterials(subject, fullText);
-                
-                // Save to Firestore
-                const newDocRef = doc(collection(db, 'studyGuides'));
-                const finalData = {
-                    ...guideData,
-                    uid: state.user.uid,
-                    subject: subject,
-                    createdAt: serverTimestamp()
-                };
-                await setDoc(newDocRef, finalData);
-                
-                state.currentGuide = { id: newDocRef.id, ...finalData };
+                state.data = await generateStudyMaterials(subject, fullText);
+                state.subject = subject;
+
                 homeScreen.classList.add('hidden');
                 mainScreen.classList.remove('hidden');
                 currentSubjectDisplay.textContent = subject;
-                switchTab('guide');
+                switchTab('notes');
             } catch (error) {
                 console.error(error);
                 alert('Error: ' + error.message);
@@ -360,6 +234,10 @@
                 loadingOverlay.classList.add('hidden');
             }
         });
+
+        tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+        // --- Functions ---
 
         async function extractTextFromPDF(file) {
             const arrayBuffer = await file.arrayBuffer();
@@ -374,7 +252,22 @@
         }
 
         async function generateStudyMaterials(subject, context) {
-            const prompt = `Expert tutor teaching: "${subject}". Context: ${context.substring(0, 20000)}. JSON format: summary, topics (title, content), flashcards (question, answer), quiz (question, options, correct, explanation).`;
+            const prompt = `
+                You are an elite AI Teacher. Your goal is to teach the subject: "${subject}" using the provided materials.
+                
+                Materials:
+                ${context.substring(0, 25000)} 
+
+                Generate a comprehensive learning package in JSON format with the following structure:
+                1. "lectureNotes": A list of sections. Each section has a "title" and "content" (detailed, deep teaching).
+                2. "formulas": A list of formulas found or relevant. Each has "original", "simplified" (or easier version), and "explanation".
+                3. "flashcards": A list of 8-10 cards with "question" and "answer".
+                4. "practiceQuiz": A list of 5 multiple choice questions with "question", "options" (array of 4), "correct", and "explanation".
+                5. "finalTest": A list of 5 challenging questions (can be open-ended or complex multiple choice) to verify mastery.
+
+                Make the content deep, structured, and easy to follow.
+            `;
+
             const response = await ai.models.generateContent({
                 model: "gemini-3-flash-preview",
                 contents: prompt,
@@ -383,15 +276,62 @@
                     responseSchema: {
                         type: Type.OBJECT,
                         properties: {
-                            summary: { type: Type.STRING },
-                            topics: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, content: { type: Type.STRING } }, required: ["title", "content"] } },
-                            flashcards: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { question: { type: Type.STRING }, answer: { type: Type.STRING } }, required: ["question", "answer"] } },
-                            quiz: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { question: { type: Type.STRING }, options: { type: Type.ARRAY, items: { type: Type.STRING } }, correct: { type: Type.STRING }, explanation: { type: Type.STRING } }, required: ["question", "options", "correct", "explanation"] } }
+                            lectureNotes: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: { title: { type: Type.STRING }, content: { type: Type.STRING } },
+                                    required: ["title", "content"]
+                                }
+                            },
+                            formulas: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: { original: { type: Type.STRING }, simplified: { type: Type.STRING }, explanation: { type: Type.STRING } },
+                                    required: ["original", "simplified", "explanation"]
+                                }
+                            },
+                            flashcards: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: { question: { type: Type.STRING }, answer: { type: Type.STRING } },
+                                    required: ["question", "answer"]
+                                }
+                            },
+                            practiceQuiz: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        question: { type: Type.STRING },
+                                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        correct: { type: Type.STRING },
+                                        explanation: { type: Type.STRING }
+                                    },
+                                    required: ["question", "options", "correct", "explanation"]
+                                }
+                            },
+                            finalTest: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        question: { type: Type.STRING },
+                                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        correct: { type: Type.STRING },
+                                        explanation: { type: Type.STRING }
+                                    },
+                                    required: ["question", "options", "correct", "explanation"]
+                                }
+                            }
                         },
-                        required: ["summary", "topics", "flashcards", "quiz"]
+                        required: ["lectureNotes", "formulas", "flashcards", "practiceQuiz", "finalTest"]
                     }
                 }
             });
+
             return JSON.parse(response.text);
         }
 
@@ -405,79 +345,96 @@
         }
 
         function renderTab() {
-            const g = state.currentGuide;
+            const data = state.data;
             tabContent.innerHTML = '';
-            if (state.tab === 'guide') {
+            
+            if (state.tab === 'notes') {
                 tabContent.innerHTML = `
-                    <div class="space-y-12">
-                        <section class="space-y-4">
-                            <h2 class="text-sm font-bold text-indigo-600 uppercase tracking-widest flex items-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                                <span>Subject Summary</span>
-                            </h2>
-                            <div class="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm italic text-gray-600 text-lg leading-relaxed">${g.summary}</div>
-                        </section>
-                        <section class="space-y-8">
-                            <h2 class="text-sm font-bold text-indigo-600 uppercase tracking-widest flex items-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                <span>Deep Teaching Topics</span>
-                            </h2>
-                            <div class="grid gap-8">
-                                ${g.topics.map((t, i) => `
-                                    <div class="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-6">
-                                        <div class="flex items-center space-x-4">
-                                            <span class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-black text-xl">${i + 1}</span>
-                                            <h3 class="text-3xl font-black text-gray-900 tracking-tight">${t.title}</h3>
-                                        </div>
-                                        <div class="text-gray-600 text-lg leading-relaxed whitespace-pre-wrap">${t.content}</div>
-                                    </div>
-                                `).join('')}
+                    <div class="space-y-10">
+                        ${data.lectureNotes.map((n, i) => `
+                            <div class="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-6">
+                                <div class="flex items-center space-x-4">
+                                    <span class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-black text-xl">${i + 1}</span>
+                                    <h3 class="text-3xl font-black text-gray-900 tracking-tight">${n.title}</h3>
+                                </div>
+                                <div class="text-gray-600 text-lg leading-relaxed whitespace-pre-wrap">${n.content}</div>
                             </div>
-                        </section>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (state.tab === 'formulas') {
+                tabContent.innerHTML = `
+                    <div class="grid gap-8">
+                        ${data.formulas.length === 0 ? '<p class="text-center text-gray-400 py-12">No specific formulas identified in these materials.</p>' : 
+                        data.formulas.map(f => `
+                            <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Original Formula</span>
+                                        <div class="formula-card text-gray-900">${f.original}</div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Simplified / Easier Version</span>
+                                        <div class="formula-card bg-indigo-50 border-indigo-500 text-indigo-900">${f.simplified}</div>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-xl text-sm text-gray-600">
+                                    <span class="font-bold">Why it works:</span> ${f.explanation}
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
                 `;
             } else if (state.tab === 'flashcards') {
                 tabContent.innerHTML = `
-                    <div class="grid md:grid-cols-2 gap-8">
-                        ${g.flashcards.map(c => `
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        ${data.flashcards.map(c => `
                             <div class="group perspective-1000 h-64 cursor-pointer" onclick="this.querySelector('.card-inner').classList.toggle('rotate-y-180')">
                                 <div class="card-inner relative w-full h-full transition-transform duration-500 preserve-3d">
                                     <div class="absolute inset-0 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center backface-hidden">
                                         <div class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4">Question</div>
-                                        <p class="text-xl font-bold text-gray-800">${c.question}</p>
+                                        <p class="text-lg font-bold text-gray-800">${c.question}</p>
                                     </div>
                                     <div class="absolute inset-0 bg-indigo-600 p-8 rounded-3xl shadow-lg flex flex-col items-center justify-center text-center backface-hidden rotate-y-180">
                                         <div class="text-xs font-bold text-indigo-200 uppercase tracking-widest mb-4">Answer</div>
-                                        <p class="text-xl font-medium text-white">${c.answer}</p>
+                                        <p class="text-lg font-medium text-white">${c.answer}</p>
                                     </div>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                 `;
-            } else if (state.tab === 'quiz') {
+            } else if (state.tab === 'quiz' || state.tab === 'test') {
+                const questions = state.tab === 'quiz' ? data.practiceQuiz : data.finalTest;
                 tabContent.innerHTML = `
-                    <div class="grid gap-8">
-                        ${g.quiz.map((q, i) => `
-                            <div class="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-8 quiz-item">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-2xl font-black text-gray-900 tracking-tight">${q.question}</h3>
-                                    <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Question ${i + 1}</span>
+                    <div class="max-w-3xl mx-auto space-y-12">
+                        <div class="text-center space-y-2">
+                            <h2 class="text-3xl font-black text-gray-900">${state.tab === 'quiz' ? 'Practice Quiz' : 'Final Mastery Test'}</h2>
+                            <p class="text-gray-500">${state.tab === 'quiz' ? 'Test your understanding as you go.' : 'The ultimate challenge to verify your mastery.'}</p>
+                        </div>
+                        <div class="space-y-8">
+                            ${questions.map((q, i) => `
+                                <div class="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-8 quiz-item">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-2xl font-black text-gray-900 tracking-tight">${q.question}</h3>
+                                        <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Q${i + 1}</span>
+                                    </div>
+                                    <div class="grid gap-4">
+                                        ${q.options.map((opt) => `
+                                            <button class="quiz-opt p-6 rounded-2xl border-2 border-gray-100 text-left font-bold text-gray-600 hover:border-indigo-200 hover:bg-indigo-50 transition-all" data-correct="${q.correct}">
+                                                ${opt}
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                    <div class="explanation-box hidden p-6 bg-indigo-50 rounded-2xl text-indigo-800 border border-indigo-100">
+                                        <p class="text-lg font-medium">${q.explanation}</p>
+                                    </div>
                                 </div>
-                                <div class="grid md:grid-cols-2 gap-4">
-                                    ${q.options.map((opt) => `
-                                        <button class="quiz-opt p-6 rounded-2xl border-2 border-gray-100 text-left font-bold text-gray-600 hover:border-indigo-200 hover:bg-indigo-50 transition-all" data-correct="${q.correct}">
-                                            ${opt}
-                                        </button>
-                                    `).join('')}
-                                </div>
-                                <div class="explanation-box hidden p-6 bg-indigo-50 rounded-2xl text-indigo-800 border border-indigo-100">
-                                    <p class="text-lg">${q.explanation}</p>
-                                </div>
-                            </div>
-                        `).join('')}
+                            `).join('')}
+                        </div>
                     </div>
                 `;
+                
                 document.querySelectorAll('.quiz-opt').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const parent = btn.closest('.quiz-item');
@@ -488,26 +445,14 @@
                             const isCorrect = b.textContent.trim() === correct;
                             b.classList.add(isCorrect ? 'border-green-500' : (b === btn ? 'border-red-500' : 'border-gray-100'));
                             b.classList.add(isCorrect ? 'bg-green-50' : (b === btn ? 'bg-red-50' : 'bg-white'));
+                            b.classList.add(isCorrect ? 'text-green-700' : (b === btn ? 'text-red-700' : 'text-gray-400'));
                         });
                         expBox.classList.remove('hidden');
+                        expBox.classList.add('fade-in');
                     });
                 });
             }
         }
-
-        function resetApp() {
-            homeScreen.classList.remove('hidden');
-            mainScreen.classList.add('hidden');
-            state.currentGuide = null;
-            subjectInput.value = '';
-            fileInput.value = '';
-            fileLabel.textContent = 'Drop PDFs or Text files here';
-            fileLabel.classList.remove('text-indigo-600');
-        }
-
-        closeBtn.addEventListener('click', resetApp);
-        logoBtn.addEventListener('click', resetApp);
-        tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 
     </script>
 </body>
