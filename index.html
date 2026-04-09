@@ -186,7 +186,7 @@
         };
 
         // --- AI Initialization ---
-        const ai = new GoogleGenAI({ apiKey: "GEMINI_API_KEY" });
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         // --- DOM Elements ---
         const fileInput = document.getElementById('file-input');
