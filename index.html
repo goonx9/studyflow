@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyFlow - Manual Study Guide Builder</title>
+    <title>StudyFlow AI - Master Any Subject</title>
     
-    <!-- Tailwind CSS (CSS only, very reliable) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Google Fonts -->
@@ -29,64 +29,99 @@
             color: #4f46e5;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
+
+        .perspective-1000 { perspective: 1000px; }
+        .preserve-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="bg-[#FDFCFB] text-gray-900 selection:bg-indigo-100 selection:text-indigo-900 min-h-screen">
 
     <!-- App Container -->
     <div id="app">
-        <!-- Initial Home Screen (Static HTML for instant load) -->
+        <!-- Home Screen -->
         <div id="home-screen" class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-white to-indigo-50/30">
             <div class="max-w-2xl w-full space-y-12 text-center fade-in">
                 <div class="space-y-6">
                     <div class="inline-flex items-center space-x-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold uppercase tracking-widest">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z"/></svg>
-                        <span>Personal Study Companion</span>
+                        <span>AI-Powered Study Companion</span>
                     </div>
                     <h1 class="text-5xl md:text-6xl font-black text-gray-900 tracking-tight leading-[1.1]">
-                        Master Any Subject <br /><span class="text-indigo-600">Step by Step.</span>
+                        Master Any Subject <br /><span class="text-indigo-600">With AI Intelligence.</span>
                     </h1>
                     <p class="text-xl text-gray-500 max-w-xl mx-auto leading-relaxed">
-                        Create your own structured study guides, interactive flashcards, and quizzes to master complex topics.
+                        Upload your study materials (PDFs or Text) and let AI teach you with structured guides, flashcards, and quizzes.
                     </p>
                 </div>
 
                 <div class="max-w-md mx-auto space-y-6">
-                    <div class="relative">
-                        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            </div>
+                            <input
+                                id="subject-input"
+                                type="text"
+                                placeholder="Enter subject name..."
+                                class="w-full pl-12 pr-4 py-5 bg-white border-2 border-gray-100 rounded-2xl focus:border-indigo-500 focus:outline-none transition-all text-lg shadow-sm"
+                            />
                         </div>
-                        <input
-                            id="subject-input"
-                            type="text"
-                            placeholder="Enter subject name..."
-                            class="w-full pl-12 pr-4 py-5 bg-white border-2 border-gray-100 rounded-2xl focus:border-indigo-500 focus:outline-none transition-all text-lg shadow-sm"
-                        />
+                        
+                        <!-- File Upload -->
+                        <div class="relative group">
+                            <input
+                                id="file-input"
+                                type="file"
+                                multiple
+                                accept=".pdf,.txt"
+                                class="hidden"
+                            />
+                            <label
+                                for="file-input"
+                                class="flex flex-col items-center justify-center w-full py-8 border-2 border-dashed border-gray-200 rounded-2xl bg-white hover:bg-indigo-50/50 hover:border-indigo-300 transition-all cursor-pointer"
+                            >
+                                <svg class="w-8 h-8 text-gray-400 group-hover:text-indigo-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                <span id="file-label" class="text-sm font-medium text-gray-500">Upload PDFs or Text files</span>
+                            </label>
+                        </div>
                     </div>
+
                     <button
-                        onclick="startApp()"
+                        id="start-btn"
                         class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center space-x-3"
                     >
-                        <span>Start Building</span>
+                        <span>Teach Me</span>
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </button>
+                    
+                    <div id="loading-overlay" class="hidden fixed inset-0 bg-white/90 backdrop-blur-sm z-[100] flex flex-col items-center justify-center space-y-6">
+                        <div class="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                        <div class="text-center px-6">
+                            <h3 class="text-xl font-bold text-gray-900">AI is analyzing your materials...</h3>
+                            <p class="text-gray-500">Extracting knowledge and building your study guide.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main App Screen (Hidden by default) -->
+        <!-- Main App Screen -->
         <div id="main-screen" class="hidden min-h-screen flex flex-col">
             <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
                 <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                    <div class="flex items-center space-x-3 cursor-pointer" onclick="resetApp()">
+                    <div class="flex items-center space-x-3 cursor-pointer" id="logo-btn">
                         <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
                             <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                         </div>
-                        <span class="text-xl font-bold tracking-tight">StudyFlow</span>
+                        <span class="text-xl font-bold tracking-tight">StudyFlow AI</span>
                     </div>
                     <div class="flex items-center space-x-4">
                         <span id="current-subject" class="text-sm font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-wider"></span>
-                        <button onclick="resetApp()" class="text-gray-400 hover:text-red-500 transition-colors">
+                        <button id="close-btn" class="text-gray-400 hover:text-red-500 transition-colors">
                             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
@@ -96,16 +131,16 @@
             <main class="flex-grow max-w-5xl mx-auto px-6 py-12 w-full space-y-12">
                 <!-- Navigation Tabs -->
                 <div class="flex justify-center">
-                    <div class="inline-flex p-1.5 bg-gray-100 rounded-2xl" id="tabs">
-                        <button onclick="switchTab('guide')" class="tab-btn flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 tab-active" data-tab="guide">
+                    <div class="inline-flex p-1.5 bg-gray-100 rounded-2xl" id="tabs-container">
+                        <button class="tab-btn flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 tab-active" data-tab="guide">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
                             <span>Study Guide</span>
                         </button>
-                        <button onclick="switchTab('flashcards')" class="tab-btn flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-gray-500 hover:text-gray-700" data-tab="flashcards">
+                        <button class="tab-btn flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-gray-500 hover:text-gray-700" data-tab="flashcards">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                             <span>Flashcards</span>
                         </button>
-                        <button onclick="switchTab('quiz')" class="tab-btn flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-gray-500 hover:text-gray-700" data-tab="quiz">
+                        <button class="tab-btn flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-gray-500 hover:text-gray-700" data-tab="quiz">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>Practice Quiz</span>
                         </button>
@@ -121,53 +156,194 @@
             <footer class="py-12 border-t border-gray-100 text-center text-sm text-gray-400">
                 <div class="flex items-center justify-center space-x-2 mb-2">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
-                    <span>StudyFlow Builder</span>
+                    <span>StudyFlow AI</span>
                 </div>
-                <p>© 2026 StudyFlow. Structured learning made simple.</p>
+                <p>© 2026 StudyFlow. Powered by Gemini AI.</p>
             </footer>
         </div>
     </div>
 
-    <script>
-        // --- State Management ---
-        let state = {
+    <script type="module">
+        import { GoogleGenAI, Type } from "https://esm.sh/@google/genai";
+        import * as pdfjsLib from "https://esm.sh/pdfjs-dist@4.0.379";
+
+        // Set worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://esm.sh/pdfjs-dist@4.0.379/build/pdf.worker.mjs';
+
+        // --- State ---
+        const state = {
             subject: '',
             tab: 'guide',
             summary: '',
             topics: [],
             flashcards: [],
-            quiz: []
+            quiz: [],
+            files: []
         };
 
-        // --- Core Functions ---
+        // --- AI Initialization ---
+        const ai = new GoogleGenAI({ apiKey: "GEMINI_API_KEY" });
 
-        function startApp() {
-            const input = document.getElementById('subject-input');
-            const subject = input.value.trim();
-            if (!subject) return;
+        // --- DOM Elements ---
+        const fileInput = document.getElementById('file-input');
+        const fileLabel = document.getElementById('file-label');
+        const startBtn = document.getElementById('start-btn');
+        const subjectInput = document.getElementById('subject-input');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const homeScreen = document.getElementById('home-screen');
+        const mainScreen = document.getElementById('main-screen');
+        const tabContent = document.getElementById('tab-content');
+        const currentSubjectDisplay = document.getElementById('current-subject');
+        const closeBtn = document.getElementById('close-btn');
+        const logoBtn = document.getElementById('logo-btn');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+
+        // --- Event Listeners ---
+
+        fileInput.addEventListener('change', (e) => {
+            state.files = Array.from(e.target.files);
+            fileLabel.textContent = state.files.length > 0 ? `${state.files.length} file(s) selected` : 'Upload PDFs or Text files';
+            fileLabel.classList.add('text-indigo-600');
+        });
+
+        startBtn.addEventListener('click', async () => {
+            const subject = subjectInput.value.trim();
+            if (!subject) {
+                alert('Please enter a subject name.');
+                return;
+            }
+            if (state.files.length === 0) {
+                alert('Please upload at least one file (PDF or Text).');
+                return;
+            }
 
             state.subject = subject;
-            document.getElementById('home-screen').classList.add('hidden');
-            document.getElementById('main-screen').classList.remove('hidden');
-            document.getElementById('current-subject').textContent = subject;
-            
-            renderTab();
+            loadingOverlay.classList.remove('hidden');
+
+            try {
+                let fullText = "";
+                for (const file of state.files) {
+                    if (file.type === "application/pdf") {
+                        fullText += await extractTextFromPDF(file);
+                    } else {
+                        fullText += await file.text();
+                    }
+                }
+
+                await generateStudyMaterials(subject, fullText);
+
+                homeScreen.classList.add('hidden');
+                mainScreen.classList.remove('hidden');
+                currentSubjectDisplay.textContent = subject;
+                switchTab('guide');
+
+            } catch (error) {
+                console.error(error);
+                alert('Error: ' + error.message);
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
+        });
+
+        closeBtn.addEventListener('click', resetApp);
+        logoBtn.addEventListener('click', resetApp);
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+
+        // --- Functions ---
+
+        async function extractTextFromPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdf = await loadingTask.promise;
+            let text = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                text += content.items.map(item => item.str).join(" ") + "\n";
+            }
+            return text;
         }
 
-        function resetApp() {
-            if (confirm('Are you sure? This will clear your current study guide.')) {
-                state = { subject: '', tab: 'guide', summary: '', topics: [], flashcards: [], quiz: [] };
-                document.getElementById('subject-input').value = '';
-                document.getElementById('home-screen').classList.remove('hidden');
-                document.getElementById('main-screen').classList.add('hidden');
-            }
+        async function generateStudyMaterials(subject, context) {
+            const prompt = `
+                You are an expert tutor teaching the subject: "${subject}".
+                Based on the following materials, create a comprehensive study guide.
+                
+                Context:
+                ${context.substring(0, 20000)} 
+
+                Generate the following in JSON format:
+                1. A brief summary of the subject.
+                2. A list of key topics (at least 3), each with a title and a detailed explanation.
+                3. A list of 6 flashcards (question and answer).
+                4. A list of 6 multiple choice quiz questions (question, 4 options, correct answer, and explanation).
+
+                Ensure the tone is educational and professional.
+            `;
+
+            const response = await ai.models.generateContent({
+                model: "gemini-3-flash-preview",
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: Type.OBJECT,
+                        properties: {
+                            summary: { type: Type.STRING },
+                            topics: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        title: { type: Type.STRING },
+                                        content: { type: Type.STRING }
+                                    },
+                                    required: ["title", "content"]
+                                }
+                            },
+                            flashcards: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        question: { type: Type.STRING },
+                                        answer: { type: Type.STRING }
+                                    },
+                                    required: ["question", "answer"]
+                                }
+                            },
+                            quiz: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        question: { type: Type.STRING },
+                                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        correct: { type: Type.STRING },
+                                        explanation: { type: Type.STRING }
+                                    },
+                                    required: ["question", "options", "correct", "explanation"]
+                                }
+                            }
+                        },
+                        required: ["summary", "topics", "flashcards", "quiz"]
+                    }
+                }
+            });
+
+            const data = JSON.parse(response.text);
+            state.summary = data.summary;
+            state.topics = data.topics;
+            state.flashcards = data.flashcards;
+            state.quiz = data.quiz;
         }
 
         function switchTab(tabId) {
             state.tab = tabId;
-            
-            // Update UI
-            document.querySelectorAll('.tab-btn').forEach(btn => {
+            tabBtns.forEach(btn => {
                 if (btn.dataset.tab === tabId) {
                     btn.classList.add('tab-active');
                     btn.classList.remove('text-gray-500', 'hover:text-gray-700');
@@ -176,175 +352,129 @@
                     btn.classList.add('text-gray-500', 'hover:text-gray-700');
                 }
             });
-
             renderTab();
         }
 
-        // --- Rendering ---
-
         function renderTab() {
-            const container = document.getElementById('tab-content');
-            container.innerHTML = ''; // Clear
-
+            tabContent.innerHTML = '';
             if (state.tab === 'guide') {
-                container.innerHTML = `
+                tabContent.innerHTML = `
                     <div class="space-y-12">
                         <section class="space-y-4">
                             <h2 class="text-sm font-bold text-indigo-600 uppercase tracking-widest flex items-center space-x-2">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                                 <span>Subject Summary</span>
                             </h2>
-                            <textarea
-                                oninput="state.summary = this.value"
-                                placeholder="Write a brief overview of the subject..."
-                                class="w-full p-6 bg-white border-2 border-gray-100 rounded-3xl focus:border-indigo-500 focus:outline-none transition-all text-lg italic text-gray-600 min-h-[120px]"
-                            >${state.summary}</textarea>
+                            <div class="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm italic text-gray-600 text-lg leading-relaxed">
+                                ${state.summary}
+                            </div>
                         </section>
-
                         <section class="space-y-8">
                             <h2 class="text-sm font-bold text-indigo-600 uppercase tracking-widest flex items-center space-x-2">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                <span>Key Topics</span>
+                                <span>Deep Teaching Topics</span>
                             </h2>
-                            
-                            <div class="grid gap-6" id="topics-list">
+                            <div class="grid gap-8">
                                 ${state.topics.map((t, i) => `
-                                    <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-4 relative group">
-                                        <button onclick="removeItem('topics', ${i})" class="absolute top-4 right-4 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                        </button>
-                                        <h3 class="text-2xl font-bold text-gray-900">${t.title}</h3>
-                                        <p class="text-gray-600 leading-relaxed whitespace-pre-wrap">${t.content}</p>
+                                    <div class="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-6">
+                                        <div class="flex items-center space-x-4">
+                                            <span class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-black text-xl">${i + 1}</span>
+                                            <h3 class="text-3xl font-black text-gray-900 tracking-tight">${t.title}</h3>
+                                        </div>
+                                        <div class="prose prose-indigo max-w-none text-gray-600 text-lg leading-relaxed whitespace-pre-wrap">
+                                            ${t.content}
+                                        </div>
                                     </div>
                                 `).join('')}
-
-                                <div class="bg-indigo-50/50 p-8 rounded-3xl border-2 border-dashed border-indigo-100 space-y-4">
-                                    <input id="new-topic-title" type="text" placeholder="Topic Title" class="w-full p-4 bg-white border border-indigo-100 rounded-xl focus:border-indigo-500 focus:outline-none" />
-                                    <textarea id="new-topic-content" placeholder="Topic Content / Explanation" class="w-full p-4 bg-white border border-indigo-100 rounded-xl focus:border-indigo-500 focus:outline-none min-h-[100px]"></textarea>
-                                    <button onclick="addTopic()" class="flex items-center space-x-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                        <span>Add Topic</span>
-                                    </button>
-                                </div>
                             </div>
                         </section>
                     </div>
                 `;
             } else if (state.tab === 'flashcards') {
-                container.innerHTML = `
-                    <div class="grid md:grid-cols-2 gap-6">
+                tabContent.innerHTML = `
+                    <div class="grid md:grid-cols-2 gap-8">
                         ${state.flashcards.map((c, i) => `
-                            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4 relative group">
-                                <button onclick="removeItem('flashcards', ${i})" class="absolute top-4 right-4 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                </button>
-                                <div class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Question</div>
-                                <p class="font-bold text-gray-800">${c.question}</p>
-                                <div class="h-px bg-gray-100 w-full"></div>
-                                <div class="text-xs font-bold text-green-400 uppercase tracking-widest">Answer</div>
-                                <p class="text-gray-600">${c.answer}</p>
+                            <div class="group perspective-1000 h-64 cursor-pointer" onclick="this.querySelector('.card-inner').classList.toggle('rotate-y-180')">
+                                <div class="card-inner relative w-full h-full transition-transform duration-500 preserve-3d">
+                                    <div class="absolute inset-0 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center backface-hidden">
+                                        <div class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4">Question</div>
+                                        <p class="text-xl font-bold text-gray-800">${c.question}</p>
+                                        <div class="mt-6 text-xs text-gray-400 uppercase font-bold tracking-widest">Click to flip</div>
+                                    </div>
+                                    <div class="absolute inset-0 bg-indigo-600 p-8 rounded-3xl shadow-lg flex flex-col items-center justify-center text-center backface-hidden rotate-y-180">
+                                        <div class="text-xs font-bold text-indigo-200 uppercase tracking-widest mb-4">Answer</div>
+                                        <p class="text-xl font-medium text-white">${c.answer}</p>
+                                    </div>
+                                </div>
                             </div>
                         `).join('')}
-
-                        <div class="bg-indigo-50/50 p-6 rounded-2xl border-2 border-dashed border-indigo-100 space-y-4">
-                            <input id="new-card-q" placeholder="Question" class="w-full p-3 bg-white border border-indigo-100 rounded-xl focus:outline-none focus:border-indigo-500" />
-                            <input id="new-card-a" placeholder="Answer" class="w-full p-3 bg-white border border-indigo-100 rounded-xl focus:outline-none focus:border-indigo-500" />
-                            <button onclick="addCard()" class="w-full flex items-center justify-center space-x-2 py-3 bg-indigo-600 text-white rounded-xl font-bold">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                <span>Add Flashcard</span>
-                            </button>
-                        </div>
                     </div>
                 `;
             } else if (state.tab === 'quiz') {
-                container.innerHTML = `
+                tabContent.innerHTML = `
                     <div class="grid gap-8">
                         ${state.quiz.map((q, i) => `
-                            <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6 relative group">
-                                <button onclick="removeItem('quiz', ${i})" class="absolute top-4 right-4 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                </button>
+                            <div class="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-8 quiz-item">
                                 <div class="flex items-center justify-between">
-                                    <h3 class="text-xl font-bold text-gray-900">${q.question}</h3>
+                                    <h3 class="text-2xl font-black text-gray-900 tracking-tight">${q.question}</h3>
                                     <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Question ${i + 1}</span>
                                 </div>
                                 <div class="grid md:grid-cols-2 gap-4">
                                     ${q.options.map((opt) => `
-                                        <div class="p-4 rounded-xl border-2 ${opt === q.correct ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-100 text-gray-500'}">
+                                        <button class="quiz-opt p-6 rounded-2xl border-2 border-gray-100 text-left font-bold text-gray-600 hover:border-indigo-200 hover:bg-indigo-50 transition-all" data-correct="${q.correct}" data-explanation="${q.explanation.replace(/"/g, '&quot;')}">
                                             ${opt}
-                                        </div>
+                                        </button>
                                     `).join('')}
                                 </div>
-                                <div class="p-4 bg-indigo-50 rounded-xl text-sm text-indigo-800">
-                                    <span class="font-bold">Explanation:</span> ${q.explanation}
+                                <div class="explanation-box hidden p-6 bg-indigo-50 rounded-2xl text-indigo-800 border border-indigo-100">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span class="font-black uppercase text-xs tracking-widest">Explanation</span>
+                                    </div>
+                                    <p class="text-lg">${q.explanation}</p>
                                 </div>
                             </div>
                         `).join('')}
-
-                        <div class="bg-indigo-50/50 p-8 rounded-3xl border-2 border-dashed border-indigo-100 space-y-6">
-                            <input id="new-q-text" placeholder="Question" class="w-full p-4 bg-white border border-indigo-100 rounded-xl focus:outline-none" />
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <input id="new-q-o1" placeholder="Option 1" class="p-3 bg-white border border-indigo-100 rounded-xl focus:outline-none" />
-                                <input id="new-q-o2" placeholder="Option 2" class="p-3 bg-white border border-indigo-100 rounded-xl focus:outline-none" />
-                                <input id="new-q-o3" placeholder="Option 3" class="p-3 bg-white border border-indigo-100 rounded-xl focus:outline-none" />
-                                <input id="new-q-o4" placeholder="Option 4" class="p-3 bg-white border border-indigo-100 rounded-xl focus:outline-none" />
-                            </div>
-                            <input id="new-q-correct" placeholder="Correct Answer (must match one option exactly)" class="w-full p-4 bg-white border border-indigo-100 rounded-xl focus:outline-none" />
-                            <textarea id="new-q-exp" placeholder="Explanation" class="w-full p-4 bg-white border border-indigo-100 rounded-xl focus:outline-none"></textarea>
-                            <button onclick="addQuiz()" class="w-full flex items-center justify-center space-x-2 py-4 bg-indigo-600 text-white rounded-xl font-bold">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                <span>Add Quiz Question</span>
-                            </button>
-                        </div>
                     </div>
                 `;
+                // Add quiz logic
+                document.querySelectorAll('.quiz-opt').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const parent = btn.closest('.quiz-item');
+                        const correct = btn.dataset.correct;
+                        const buttons = parent.querySelectorAll('.quiz-opt');
+                        const expBox = parent.querySelector('.explanation-box');
+                        
+                        buttons.forEach(b => {
+                            b.disabled = true;
+                            const text = b.textContent.trim();
+                            if (text === correct) {
+                                b.classList.add('border-green-500', 'bg-green-50', 'text-green-700');
+                                b.classList.remove('border-gray-100', 'text-gray-600');
+                            } else if (b === btn && text !== correct) {
+                                b.classList.add('border-red-500', 'bg-red-50', 'text-red-700');
+                                b.classList.remove('border-gray-100', 'text-gray-600');
+                            }
+                        });
+                        expBox.classList.remove('hidden');
+                        expBox.classList.add('fade-in');
+                    });
+                });
             }
         }
 
-        // --- Action Handlers ---
-
-        function addTopic() {
-            const title = document.getElementById('new-topic-title').value;
-            const content = document.getElementById('new-topic-content').value;
-            if (title && content) {
-                state.topics.push({ title, content });
-                renderTab();
+        function resetApp() {
+            if (confirm('Are you sure? This will clear your current study guide.')) {
+                Object.assign(state, { subject: '', tab: 'guide', summary: '', topics: [], flashcards: [], quiz: [], files: [] });
+                subjectInput.value = '';
+                fileInput.value = '';
+                fileLabel.textContent = 'Upload PDFs or Text files';
+                fileLabel.classList.remove('text-indigo-600');
+                homeScreen.classList.remove('hidden');
+                mainScreen.classList.add('hidden');
             }
         }
 
-        function addCard() {
-            const question = document.getElementById('new-card-q').value;
-            const answer = document.getElementById('new-card-a').value;
-            if (question && answer) {
-                state.flashcards.push({ question, answer });
-                renderTab();
-            }
-        }
-
-        function addQuiz() {
-            const question = document.getElementById('new-q-text').value;
-            const options = [
-                document.getElementById('new-q-o1').value,
-                document.getElementById('new-q-o2').value,
-                document.getElementById('new-q-o3').value,
-                document.getElementById('new-q-o4').value,
-            ];
-            const correct = document.getElementById('new-q-correct').value;
-            const explanation = document.getElementById('new-q-exp').value;
-
-            if (question && correct) {
-                state.quiz.push({ question, options, correct, explanation });
-                renderTab();
-            }
-        }
-
-        function removeItem(type, index) {
-            state[type].splice(index, 1);
-            renderTab();
-        }
-
-        // --- Initialization ---
-        // No complex initialization needed. The static HTML handles the home screen.
     </script>
 </body>
 </html>
